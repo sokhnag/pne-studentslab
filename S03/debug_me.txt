@@ -1,0 +1,2 @@
+The code fails in result 2 because t1 (c - d) is equal to zero, and you cannot divide by 0.
+It would be necessary to add a try and except to avoid the division by 0.
