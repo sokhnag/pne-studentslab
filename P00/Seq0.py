@@ -30,20 +30,13 @@ def seq_count(seq):
 def seq_reverse(seq, n):
     seq = seq[:n]
     reverse = seq[::-1]
-    return "Sequence:" + seq + "\nReverse sequence:\n" + reverse
+    return "Sequence: " + seq + "\nReverse sequence: " + reverse
 
 def seq_complement(seq, n):
     seqreverse = ""
-
+    dct = {"A": "T" , "G":"C", "C": "G" , "T": "A"}
     for a in seq:
-        if a == "A":
-            seqreverse += "T"
-        elif a == "T":
-            seqreverse += "A"
-        elif a == "G":
-            seqreverse += "C"
-        elif a == "C":
-            seqreverse += "G"
+        seqreverse += dct[a]
 
-    return "Sequence: " + seq[:n] + "\nReverse sequence:\n" + seqreverse[:n]
+    return "Sequence: " + seq[:n] + "\nReverse sequence: " + seqreverse[:n]
 
