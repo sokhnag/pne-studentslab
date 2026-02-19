@@ -11,7 +11,7 @@ def seq_read_fasta(filename):
 
 def seq_len(seq):
     x = Path(seq).read_text()
-    x2 = x[x.find("\n"):]
+    x2 = x[x.find("\n"):].replace("\n" , "")
     return len(x2)
 
 def seq_count_base(seq, base):
@@ -23,14 +23,14 @@ def seq_count_base(seq, base):
 
 def seq_count(seq):
     h = {}
-    for a in ["A" , "C" , "G" , "T"]:
+    for a in ["A" , "T" , "C" , "G"]:
         h[a] = seq_count_base(seq , a)
     return h
 
 def seq_reverse(seq, n):
     seq = seq[:n]
     reverse = seq[::-1]
-    return "Sequence: " + seq + "\nReverse sequence: " + reverse
+    return "Fragment: " + seq + "\nReverse: " + reverse
 
 def seq_complement(seq):
     seqreverse = ""
@@ -38,5 +38,5 @@ def seq_complement(seq):
     for a in seq:
         seqreverse += dct[a]
 
-    return "Sequence: " + seq + "\nReverse sequence: " + seqreverse
+    return "Frag: " + seq + "\nComp: " + seqreverse
 
