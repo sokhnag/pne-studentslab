@@ -32,11 +32,11 @@ def seq_reverse(seq, n):
     reverse = seq[::-1]
     return "Sequence: " + seq + "\nReverse sequence: " + reverse
 
-def seq_complement(seq, n):
+def seq_complement(seq):
     seqreverse = ""
     dct = {"A": "T" , "G":"C", "C": "G" , "T": "A"}
     for a in seq:
         seqreverse += dct[a]
 
-    return "Sequence: " + seq[:n] + "\nReverse sequence: " + seqreverse[:n]
+    return "Sequence: " + seq + "\nReverse sequence: " + seqreverse
 
