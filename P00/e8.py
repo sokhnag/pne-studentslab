@@ -6,7 +6,7 @@ from Seq0 import seq_count
 
 print("-----| Exercise 8 |------")
 for a in ["U5", "ADA" , "FRAT1", "FXN"]:
-    x = Path("/home/alumnos/sokhnag/PycharmProjects/pne-studentslab/S04/sequences/" + a + ".txt").read_text()
+    x = Path("sequences/" + a + ".txt").read_text()
     x2 = x[x.find("\n"):]
     mx = 0
     base = None
