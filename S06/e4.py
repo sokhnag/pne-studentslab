@@ -1,7 +1,5 @@
 import termcolor
 
-
-
 class Seq:
     """A class for representing sequences"""
     def __init__(self , attribute1):
@@ -22,7 +20,7 @@ class Seq:
 def print_seqs(seq_list , color):
     for a in seq_list:
         s = "Sequence " + str(seq_list.index(a)) + ": "
-        termcolor.cprint(f" {s }(length: {a.len()}) {a}", color)
+        termcolor.cprint(f" {s}(length: {a.len()}) {a}", color)
 
 
 def generate_seqs(pattern, number):
@@ -37,6 +35,6 @@ seq_list2 = generate_seqs("AC", 5)
 print("List 1:")
 print_seqs(seq_list1 , "blue")
 
-print()
-print("List 2:" , "")
+
+print("List 2:")
 print_seqs(seq_list2 , "yellow")
