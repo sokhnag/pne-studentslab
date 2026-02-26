@@ -3,7 +3,7 @@ from pathlib import Path
 class Seq:
     def __init__(self , attribute1 = None):
         self.attribute1 = attribute1
-        if self.attribute1 == None:
+        if self.attribute1 is None:
             self.attribute1 = "NULL"
             print("NULL sequence created.")
         else:
@@ -62,4 +62,7 @@ class Seq:
     def read_fasta(self , filename):
         if self.attribute1 == "NULL":
             x = Path(filename).read_text()
-            return Seq(x[x.find("\n"):].replace("\n" , ""))
+            self.attribute1 = x[x.find("\n"):].replace("\n" , "")
+            return Seq(self.attribute1)
+        else:
+            return "Not a NULL sequence"
