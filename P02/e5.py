@@ -18,11 +18,11 @@ b = str(s.read_fasta("sequences/FRAT1.txt"))
 c.talk("Sending FRAT1 gene to the server, in fragments of 10 bases...")
 fragments = 1
 f = ""
-while fragments in range(6):
-    for a in b:
+
+for a in b:
+    if fragments <= 5:
         f += a
         if len(f) == 10:
-            print(fragments)
             print(f"Fragment {fragments}: {f}")
             c.talk(f"Fragment {fragments}: {f}")
             fragments += 1
