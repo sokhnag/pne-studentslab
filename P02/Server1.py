@@ -21,7 +21,7 @@ try:
         print("Waiting for connections at {}, {} ".format(IP, PORT))
         (clientsocket, address) = serversocket.accept()
 
-        # Another connection!e
+        # Another connection
         number_con += 1
 
         # Print the connection number
