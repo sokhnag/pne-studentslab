@@ -1,7 +1,7 @@
 import socket
 
 import termcolor
-from numpy.core.defchararray import endswith
+
 
 from Seq1 import Seq
 
