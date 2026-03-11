@@ -64,11 +64,13 @@ while True:
             s = Seq(msg[msg.find("V") + 1:].strip())
             response = s.reverse()
 
-        elif msg.startswith("GENE") and msg.endswith("U5" or "ADA" or "FRAT1" or "FXN" or "RNU6_269P"):
-            termcolor.cprint("GENE", "green")
-            s = Seq()
-            s.read_fasta("sequences/" + msg[msg.find("GENE") + len("GENE"):].strip() + ".txt")
-            response = str(s)
+        elif msg.startswith("GENE")  :
+            if "U5" or "ADA" or "FRAT1" or "FXN" or "RNU6_269P" in msg:
+                termcolor.cprint("GENE", "green")
+                s = Seq()
+                s.read_fasta("sequences/" + msg[msg.find("GENE") + len("GENE"):].strip() + ".txt")
+                response = str(s)
+
 
 
         cs.send(response.encode())
