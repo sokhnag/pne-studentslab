@@ -1,5 +1,6 @@
 import socket
 
+
 # Configure the Server's IP and PORT
 PORT = 8080
 IP = "212.128.255.74" # this IP address is local, so only requests from the same machine are possible
