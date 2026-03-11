@@ -71,8 +71,6 @@ while True:
                 s.read_fasta("sequences/" + msg[msg.find("GENE") + len("GENE"):].strip() + ".txt")
                 response = str(s)
 
-
-
         cs.send(response.encode())
         print(response)
         cs.close()
