@@ -2,7 +2,6 @@ import socket
 
 import termcolor
 
-
 from Seq1 import Seq
 
 PORT = 8080
@@ -43,7 +42,7 @@ while True:
 
         elif msg.startswith("INFO"):
             termcolor.cprint("INFO", "green")
-            s = Seq(msg[msg.find("O") + 1:].strip())
+            s = Seq(msg.split(" ")[1])
             n = {}
             bases = ""
 
@@ -56,22 +55,23 @@ while True:
 
         elif msg.startswith("COMP"):
             termcolor.cprint("COMP", "green")
-            s = Seq(msg[msg.find("P") + 1:].strip())
+            s = Seq(msg.split(" ")[1])
             response = s.complement()
 
         elif msg.startswith("REV"):
             termcolor.cprint("REV", "green")
-            s = Seq(msg[msg.find("V") + 1:].strip())
+            s = Seq(msg.split(" ")[1])
             response = s.reverse()
 
         elif msg.startswith("GENE")  :
             if "U5" or "ADA" or "FRAT1" or "FXN" or "RNU6_269P" in msg:
                 termcolor.cprint("GENE", "green")
                 s = Seq()
-                s.read_fasta("sequences/" + msg[msg.find("GENE") + len("GENE"):].strip() + ".txt")
+                s.read_fasta("sequences/" + msg.split(" ")[1] + ".txt")
                 response = str(s)
         else:
             response = "Invalid command"
+
         cs.send(response.encode())
         print(response)
         cs.close()
