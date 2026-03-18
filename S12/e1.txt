@@ -1,0 +1,22 @@
+"webserver-2"
+- hello
+Which is the request line?
+GET /hello HTTP/1.1
+Which is the resource that the client is asking for? (the path)
+/hello
+
+- file
+Which is the request line?
+GET /file.html HTTP/1.1
+Which is the resource that the client is asking for? (the path)
+/file.html
+
+- corona
+Which is the request line?
+GET /hi/there?name=virus&type=corona HTTP/1.1
+Which is the resource that the client is asking for? (the path)
+/hi/there?name=virus&type=corona
+
+
+What should be the URL that we have to write in the browser for accessing the /dna/u5 resource?
+http://127.0.0.1:8082/dna/u5
