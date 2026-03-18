@@ -29,9 +29,9 @@ def process_client(s):
         elif req_line.split("/")[2].split(" ")[0] == "T":
             body = Path("html/info/T.html").read_text()
         else:
-            body = Path("html/info/error.html").read_text()
+            body = Path("html/error.html").read_text()
     else:
-        body = Path("html/info/error.html").read_text()
+        body = Path("html/error.html").read_text()
 
     status_line = "HTTP/1.1 200 OK\n"
     header = "Content-Type: text/html\n"
