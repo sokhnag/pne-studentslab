@@ -19,24 +19,17 @@ def process_client(s):
     print("Request line: ", end="")
     termcolor.cprint(req_line, "green")
     if req_line.split("/")[1] == "info":
-        if req_line.split("/")[2].split(" ")[0] == "A":
-            body = Path("html/info/A.html").read_text()
-        elif req_line.split("/")[2].split(" ")[0] == "C":
-            body = Path("html/info/C.html").read_text()
-        elif req_line.split("/")[2].split(" ")[0] == "G":
-            body = Path("html/info/G.html").read_text()
-        elif req_line.split("/")[2].split(" ")[0] == "T":
-            body = Path("html/info/T.html").read_text()
-        else:
+        try:
+            base = req_line.split("/")[2].split(" ")[0]
+            body = Path(f"html/info/{base}.html").read_text()
+        except FileNotFoundError:
             body = Path("html/error.html").read_text()
+
     else:
-        if req_line.split("/")[1].strip() == "HTTP":
+        if req_line.split(" ")[1].strip() == "/":
             body = Path("html/info/index.html").read_text()
         else:
             body = Path("html/error.html").read_text()
-
-
-
 
 
     status_line = "HTTP/1.1 200 OK\n"
@@ -72,8 +65,5 @@ while True:
         exit()
     else:
 
-        # Service the client
         process_client(cs)
-
-        # -- Close the socket
         cs.close()
