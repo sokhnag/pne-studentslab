@@ -1,5 +1,3 @@
-from openpyxl.styles.builtins import total
-
 
 class Products:
     def __init__(self, name, price):
