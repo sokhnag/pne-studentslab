@@ -28,9 +28,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         # Message to send back to the client
         path = self.requestline.split(" ")[1]
-        print(path)
         file = path.replace("/" , "")
-        print(file)
         if path == "/":
             contents = Path("index.html").read_text()
         else:
