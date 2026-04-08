@@ -13,7 +13,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         path = self.requestline.split(" ")[1]
 
         if path == "/":
-            contents = Path("html/info/index.html").read_text()
+            contents = Path("html/index.html").read_text()
         else:
             try:
                 contents = Path("html" + path).read_text()
