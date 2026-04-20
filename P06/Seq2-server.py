@@ -49,9 +49,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             if op == "Info":
                 bases = []
                 for a in seq.count_base().split(", "):
-                    bases.append(f"{a} ({str(round(int(a.split(" : ")[1]) / seq.len() * 100, 2))}%)")
+                    if seq.len() != 0:
+                        bases.append(f"{a} ({str(round(int(a.split(" : ")[1]) / seq.len() * 100, 2))}%)")
+                    else:
+                        bases.append(f"{a} (0%)")
                 res = f"Sequence: {seq}<p><p>Total lenght: {str(seq.len())} <p><p>{"<p><p>".join(bases)}"
-                print(res)
+
             elif op == "Comp":
                 res = seq.complement()
             elif op == "Rev":
