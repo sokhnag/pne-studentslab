@@ -13,7 +13,7 @@ genes = {"FRAT1": "ENSG00000165879",
 
 print("Dictionary of Genes!")
 print("There are 10 genes in the dictionary:")
-for a in genes.keys():
+for a in genes:
     b = termcolor.colored(a, "yellow")
     print(f"{b}: --> {genes[a]}")
 

@@ -31,17 +31,23 @@ response = connect.getresponse()
 res = response.read().decode()
 data = json.loads(res)
 print(f"Response received!: {response.status} {response.reason}\n")
-print(data)
-print(f"Gene: {gene}")
-print()
-print(f"Description: {data["desc"]}")
+print(f"{termcolor.colored("Gene", "yellow")}: {gene}")
+print(f"{termcolor.colored("Description", "yellow")}: {data["desc"]}")
 seq = Seq(data["seq"])
-print(f"Total lenght: {seq.len()}")
+print(f"{termcolor.colored("Total length", "yellow")}: {seq.len()}")
 bases = []
+mx = 0
+b = None
 for a in seq.count_base().split(", "):
+    base = (a.split(" : ")[0])
     if seq.len() != 0:
-        bases.append(f"{a} ({str(round(int(a.split(" : ")[1]) / seq.len() * 100, 2))}%)")
+        n = int(a.split(" : ")[1])
+        if n > mx:
+            mx = n
+            b = base
+        bases.append(f"{termcolor.colored(base, "blue")}: {n} ({str(round(n / seq.len() * 100, 2))}%)")
     else:
         bases.append(f"{termcolor.colored(a, "blue")} (0%)")
 print("\n".join(bases))
+print(f"{termcolor.colored("Most common base", "yellow")}: {b}")
 
