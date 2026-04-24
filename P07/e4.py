@@ -17,37 +17,40 @@ genes = {"FRAT1": "ENSG00000165879",
 server = "rest.ensembl.org"
 endpoint = "/sequence/id/"
 gene = str(input("Write the gene name: "))
-parameters = f"{genes[gene]}?content-type=application/json"
+try:
+    parameters = f"{genes[gene]}?content-type=application/json"
 
-url = server + endpoint + parameters
-print()
-print(f"Server: {server}")
-print(f"URL: {url}")
+    url = server + endpoint + parameters
+    print()
+    print(f"Server: {server}")
+    print(f"URL: {url}")
 
 
-connect = http.client.HTTPSConnection(server)
-connect.request("GET", endpoint + parameters )
-response = connect.getresponse()
-res = response.read().decode()
-data = json.loads(res)
-print(f"Response received!: {response.status} {response.reason}\n")
-print(f"{termcolor.colored("Gene", "yellow")}: {gene}")
-print(f"{termcolor.colored("Description", "yellow")}: {data["desc"]}")
-seq = Seq(data["seq"])
-print(f"{termcolor.colored("Total length", "yellow")}: {seq.len()}")
-bases = []
-mx = 0
-b = None
-for a in seq.count_base().split(", "):
-    base = (a.split(" : ")[0])
-    if seq.len() != 0:
-        n = int(a.split(" : ")[1])
-        if n > mx:
-            mx = n
-            b = base
-        bases.append(f"{termcolor.colored(base, "blue")}: {n} ({str(round(n / seq.len() * 100, 2))}%)")
-    else:
-        bases.append(f"{termcolor.colored(a, "blue")} (0%)")
-print("\n".join(bases))
-print(f"{termcolor.colored("Most common base", "yellow")}: {b}")
+    connect = http.client.HTTPSConnection(server)
+    connect.request("GET", endpoint + parameters )
+    response = connect.getresponse()
+    res = response.read().decode()
+    data = json.loads(res)
+    print(f"Response received!: {response.status} {response.reason}\n")
+    print(f"{termcolor.colored("Gene", "yellow")}: {gene}")
+    print(f"{termcolor.colored("Description", "yellow")}: {data["desc"]}")
+    seq = Seq(data["seq"])
+    print(f"{termcolor.colored("Total length", "yellow")}: {seq.len()}")
+    bases = []
+    mx = 0
+    b = None
+    for a in seq.count_base().split(", "):
+        base = (a.split(" : ")[0])
+        if seq.len() != 0:
+            n = int(a.split(" : ")[1])
+            if n > mx:
+                mx = n
+                b = base
+            bases.append(f"{termcolor.colored(base, "blue")}: {n} ({str(round(n / seq.len() * 100, 2))}%)")
+        else:
+            bases.append(f"{termcolor.colored(a, "blue")} (0%)")
+    print("\n".join(bases))
+    print(f"{termcolor.colored("Most common base", "yellow")}: {b}")
+except KeyError:
+    print("Invalid gene")
 
