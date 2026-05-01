@@ -13,7 +13,7 @@ PORT = 8080
 IP = "212.128.255.74"
 socketserver.TCPServer.allow_reuse_address = True
 SERVER = "rest.ensembl.org"
-PARAM = "?content-type=application/json"
+PARAM = "content-type=application/json"
 connect = http.client.HTTPSConnection(SERVER)
 def dat(e):
     connect.request("GET", e + PARAM)
@@ -49,7 +49,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
             contents_list = []
             if path == "/listSpecies" or "listSpecies" in arguments:
-                ENDPOINT = "/info/species"
+                ENDPOINT = "/info/species" + "?"
                 data = dat(ENDPOINT)
                 if "limit" in arguments:
                     lim = int(arguments["limit"][0])
@@ -66,12 +66,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = read_html_file("Species.html").render(context={"todisplay": "<p></p>".join(contents_list),
                                                                               "number": "ALL" ,"total": len(data["species"])})
             elif path == "/karyotype" or "karyotype" in arguments:
-                ENDPOINT = "/info/assembly/" + arguments["species"][0].replace(" ", "%20")
+                ENDPOINT = "/info/assembly/" + arguments["species"][0].replace(" ", "%20") + "?"
                 data = dat(ENDPOINT)
                 contents = read_html_file("ka.html").render(
                     context={"todisplay": "<p></p>".join(data["karyotype"]), "number": f"Species: {arguments["species"][0]}"})
             elif path == "/chromosomeLength" or "chromosomeLength" in arguments:
-                ENDPOINT = "/info/assembly/" + arguments["species"][0]
+                ENDPOINT = "/info/assembly/" + arguments["species"][0] + "?"
                 data = dat(ENDPOINT)
                 for a in data["top_level_region"]:
                     if a["name"] == arguments["chromo"][0]:
@@ -83,35 +83,39 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     context={"todisplay": l,
                              "s": f"Species: {arguments["species"][0]}", "chro": arguments["chromo"][0]})
             elif path == "/geneLookup" or "geneLookup" in arguments:
-                ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0]
+                ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0] + "?"
                 data = dat(ENDPOINT)
                 contents = read_html_file("look.html").render(
-                    context={"gene": arguments["gene"][0],
+                    context={"gene": "Gene: " + arguments["gene"][0],
                              "what": f"Stable identifier: {data[0]["id"]}"})
             elif path == "/geneSeq" or "geneSeq" in arguments:
-                ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0]
+                ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0] + "?"
                 data = dat(ENDPOINT)
-                ENDPOINT2 = "/sequence/id/" + data[0]["id"]
+                ENDPOINT2 = "/sequence/id/" + data[0]["id"] + "?"
                 data2 = dat(ENDPOINT2)
                 s = Seq(data2["seq"])
                 contents = read_html_file("look.html").render(
-                    context={"gene": arguments["gene"][0],
+                    context={"gene": "Gene: " + arguments["gene"][0],
                              "what": f"Sequence: <p></p><textarea rows='8' cols='70'>{s}</textarea>" })
             elif path == "/geneInfo" or "geneInfo" in arguments:
-                ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0]
+                ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0]+ "?"
                 data = dat(ENDPOINT)
-                ENDPOINT2 = "/overlap/id/" + data[0]["id"]
+                ENDPOINT2 = "/lookup/id/" + data[0]["id"]+ "?"
                 data2 = dat(ENDPOINT2)
-                for a in data2:
-                    if a["id"] == data[0]["id"]:
-                        start = a["start"]
-                contents = read_html_file("look.html").render(
-                    context={"gene": arguments["gene"][0],
-                             "what": f"Info <p></p>Start: {start}<p></p>End: {start}<p></p>Length: {start}<p></p>Id: {start}<p></p>Name of the chromosome: {start}"})
+                if data2["id"] == data[0]["id"]:
+                        start = int(data2["start"])
+                        end = int(data2["end"])
+                        lenght = end - start + 1
+                        c = data2["seq_region_name"]
+                        contents = read_html_file("look.html").render(
+                            context={"gene": "Gene: " + arguments["gene"][0],
+                                     "what": f"Info <p></p>Start: {start}<p></p>End: {end}<p></p>Length: {lenght}<p></p>Id: {data[0]["id"]}"
+                                             f"<p></p>Name of the chromosome: {c}"})
+
             elif path == "/geneCalc" or "geneCalc" in arguments:
-                ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0]
+                ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0] + "?"
                 data = dat(ENDPOINT)
-                ENDPOINT2 = "/sequence/id/" + data[0]["id"]
+                ENDPOINT2 = "/sequence/id/" + data[0]["id"]+ "?"
                 data2 = dat(ENDPOINT2)
                 s = Seq(data2["seq"])
                 bases = []
@@ -122,14 +126,14 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         bases.append(f"{base}: {n} ({str(round(n / s.len() * 100, 2))}%)")
                     else:
                         bases.append(f"{a} (0%)")
-                contents = read_html_file("look.html").render(context={"gene": arguments["gene"][0],
+                contents = read_html_file("look.html").render(context={"gene": "Gene:" + arguments["gene"][0],
                         "what": f"Calculations <p></p>Length: {s.len()}<p></p> {"<p></p>".join(bases)}"})
-            elif path == "/geneList" or "geneList" in arguments:#estamal
-                ENDPOINT = f"/overlap/region/human/{arguments["chromo"][0]}:{arguments["start"][0]}-{arguments["end"][0]}"
+            elif path == "/geneList" or "geneList" in arguments:
+                ENDPOINT = f"/overlap/region/human/{arguments["chromo"][0]}:{arguments["start"][0]}-{arguments["end"][0]}?feature=gene;"
                 data = dat(ENDPOINT)
                 print(data)
-                contents = read_html_file("look.html").render(context={"gene": arguments["chromo"][0],
-                           "what": f"Genes: {"<p></p>".join(contents_list)}"})
+                contents = read_html_file("look.html").render(context={"gene": f"Chromosome: {arguments["chromo"][0]}, start: {arguments["start"][0]}, end: {arguments["end"][0]}",
+                           "what": f"Gene: {data[0]["external_name"]}<p></p>Stable id: {data[0]["id"]}"})
             else:
                 contents = Path('error.html').read_text()
 
