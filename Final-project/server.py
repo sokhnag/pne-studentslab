@@ -42,9 +42,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         arguments = parse_qs(url_path.query)
         print(path)
         print(arguments)
+        content_json = []
 
         if path == "/" and arguments == {} :
-            contents = Path('main.html').read_text()
+            content_html = Path('main.html').read_text()
         else:
 
             contents_list = []
@@ -56,19 +57,27 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     a = 1
                     for b in data["species"]:
                         if a <= lim:
-                            contents_list.append(f"{a}) Common name: {b["common_name"]}")
+                            contents_list.append(f"{a}) {b["common_name"]}")
                             a += 1
-                    contents = read_html_file("Species.html").render(
+                            content_json.append({f"Species{a}: {b["common_name"]}"})
+
+
+
+                    content_html = read_html_file("Species.html").render(
                         context={"todisplay": "<p></p>".join(contents_list), "number": lim, "total": len(data["species"])})
+                    print(content_json)
                 else:
+                    a = 1
                     for b in data["species"]:
-                        contents_list.append(b["common_name"])
-                    contents = read_html_file("Species.html").render(context={"todisplay": "<p></p>".join(contents_list),
+                        contents_list.append(f"{a}) {b["common_name"]}")
+                        content_json.append({f"Species{a}: {b["common_name"]}"})
+                        a += 1
+                    content_html = read_html_file("Species.html").render(context={"todisplay": "<p></p>".join(contents_list),
                                                                               "number": "ALL" ,"total": len(data["species"])})
             elif path == "/karyotype" or "karyotype" in arguments:
                 ENDPOINT = "/info/assembly/" + arguments["species"][0].replace(" ", "%20") + "?"
                 data = dat(ENDPOINT)
-                contents = read_html_file("ka.html").render(
+                content_html = read_html_file("ka.html").render(
                     context={"todisplay": "<p></p>".join(data["karyotype"]), "number": f"Species: {arguments["species"][0]}"})
             elif path == "/chromosomeLength" or "chromosomeLength" in arguments:
                 ENDPOINT = "/info/assembly/" + arguments["species"][0] + "?"
@@ -79,13 +88,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         if a["coord_system"] == "chromosome":
                             l = a["length"]
 
-                contents = read_html_file("le.html").render(
+                content_html = read_html_file("le.html").render(
                     context={"todisplay": l,
                              "s": f"Species: {arguments["species"][0]}", "chro": arguments["chromo"][0]})
             elif path == "/geneLookup" or "geneLookup" in arguments:
                 ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0] + "?"
                 data = dat(ENDPOINT)
-                contents = read_html_file("look.html").render(
+                content_html = read_html_file("look.html").render(
                     context={"gene": "Gene: " + arguments["gene"][0],
                              "what": f"Stable identifier: {data[0]["id"]}"})
             elif path == "/geneSeq" or "geneSeq" in arguments:
@@ -107,11 +116,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         end = int(data2["end"])
                         lenght = end - start + 1
                         c = data2["seq_region_name"]
-                        contents = read_html_file("look.html").render(
+                        content_html = read_html_file("look.html").render(
                             context={"gene": "Gene: " + arguments["gene"][0],
                                      "what": f"Info <p></p>Start: {start}<p></p>End: {end}<p></p>Length: {lenght}<p></p>Id: {data[0]["id"]}"
                                              f"<p></p>Name of the chromosome: {c}"})
-
             elif path == "/geneCalc" or "geneCalc" in arguments:
                 ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0] + "?"
                 data = dat(ENDPOINT)
@@ -126,22 +134,37 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         bases.append(f"{base}: {n} ({str(round(n / s.len() * 100, 2))}%)")
                     else:
                         bases.append(f"{a} (0%)")
-                contents = read_html_file("look.html").render(context={"gene": "Gene:" + arguments["gene"][0],
+                content_html = read_html_file("look.html").render(context={"gene": "Gene:" + arguments["gene"][0],
                         "what": f"Calculations <p></p>Length: {s.len()}<p></p> {"<p></p>".join(bases)}"})
             elif path == "/geneList" or "geneList" in arguments:
                 ENDPOINT = f"/overlap/region/human/{arguments["chromo"][0]}:{arguments["start"][0]}-{arguments["end"][0]}?feature=gene;"
                 data = dat(ENDPOINT)
-                print(data)
-                contents = read_html_file("look.html").render(context={"gene": f"Chromosome: {arguments["chromo"][0]}, start: {arguments["start"][0]}, end: {arguments["end"][0]}",
-                           "what": f"Gene: {data[0]["external_name"]}<p></p>Stable id: {data[0]["id"]}"})
+                what = []
+                for a in data:
+                    try:
+                        what.append(f"Gene: {a["id"]}({a["external_name"]})")
+                    except KeyError:
+                        what.append(f"Gene: {a["id"]}()")
+                content_html = read_html_file("look.html").render(context={"gene": f"Chromosome: {arguments["chromo"][0]}, start: {arguments["start"][0]}, end: {arguments["end"][0]}",
+                           "what": f"{"<p></p>".join(what)}"})
             else:
-                contents = Path('error.html').read_text()
+                content_html = Path('error.html').read_text()
+        if "json" in arguments and arguments["json"] == 1:
+            contents = content_json
+            print(contents)
+            type = 'html/json'
+        elif "json" not in arguments or arguments["json"] == 0 :
+            contents = content_html
+            type = 'text/html'
+
+
+
 
         # Generating the response message
         self.send_response(200)  # -- Status line: OK!
 
         # Define the content-type header:
-        self.send_header('Content-Type', 'text/html')
+        self.send_header('Content-Type', type)
         self.send_header('Content-Length', len(str.encode(contents)))
 
         # The header is finished
