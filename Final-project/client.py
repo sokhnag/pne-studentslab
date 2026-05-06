@@ -1,5 +1,6 @@
 import http.client
 import json
+import termcolor
 
 PORT = 8080
 SERVER = 'localhost'
@@ -31,4 +32,5 @@ for url in urls:
 
     info = json.loads(data1)
 
+    termcolor.cprint(url.split("?")[0][1:].capitalize(), "yellow")
     print(f"CONTENT: {info}")

@@ -38,8 +38,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         url_path = urlparse(self.path)
         path = url_path.path
         arguments = parse_qs(url_path.query)
-        print(path)
-        print(arguments)
         content_json = {}
         if "json" in arguments and arguments["json"][0] == "1":
             type = "application/json"
@@ -82,7 +80,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             elif path == "/chromosomeLength" or "chromosomeLength" in arguments:
                 ENDPOINT = "/info/assembly/" + arguments["species"][0] + "?"
                 data = dat(ENDPOINT)
-                l = 0
+                l = "Not found"
                 for a in data["top_level_region"]:
                     if a["name"] == arguments["chromo"][0]:
                         if a["coord_system"] == "chromosome":
