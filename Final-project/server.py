@@ -42,12 +42,15 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         arguments = parse_qs(url_path.query)
         print(path)
         print(arguments)
-        content_json = []
+        content_json = {}
+        if "json" in arguments and arguments["json"][0] == "1":
+            type = "application/json"
+        else:
+            type = "text/html"
 
         if path == "/" and arguments == {} :
             content_html = Path('main.html').read_text()
         else:
-
             contents_list = []
             if path == "/listSpecies" or "listSpecies" in arguments:
                 ENDPOINT = "/info/species" + "?"
@@ -58,19 +61,15 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     for b in data["species"]:
                         if a <= lim:
                             contents_list.append(f"{a}) {b["common_name"]}")
+                            content_json[f"Species {a}"] = b["common_name"]
                             a += 1
-                            content_json.append({f"Species{a}: {b["common_name"]}"})
-
-
-
                     content_html = read_html_file("Species.html").render(
                         context={"todisplay": "<p></p>".join(contents_list), "number": lim, "total": len(data["species"])})
-                    print(content_json)
                 else:
                     a = 1
                     for b in data["species"]:
                         contents_list.append(f"{a}) {b["common_name"]}")
-                        content_json.append({f"Species{a}: {b["common_name"]}"})
+                        content_json[f"Species {a}"] = b["common_name"]
                         a += 1
                     content_html = read_html_file("Species.html").render(context={"todisplay": "<p></p>".join(contents_list),
                                                                               "number": "ALL" ,"total": len(data["species"])})
@@ -79,6 +78,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 data = dat(ENDPOINT)
                 content_html = read_html_file("ka.html").render(
                     context={"todisplay": "<p></p>".join(data["karyotype"]), "number": f"Species: {arguments["species"][0]}"})
+                content_json["Species"] = arguments["species"][0]
+                content_json["karyotype"] = data["karyotype"]
             elif path == "/chromosomeLength" or "chromosomeLength" in arguments:
                 ENDPOINT = "/info/assembly/" + arguments["species"][0] + "?"
                 data = dat(ENDPOINT)
@@ -103,7 +104,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 ENDPOINT2 = "/sequence/id/" + data[0]["id"] + "?"
                 data2 = dat(ENDPOINT2)
                 s = Seq(data2["seq"])
-                contents = read_html_file("look.html").render(
+                content_html = read_html_file("look.html").render(
                     context={"gene": "Gene: " + arguments["gene"][0],
                              "what": f"Sequence: <p></p><textarea rows='8' cols='70'>{s}</textarea>" })
             elif path == "/geneInfo" or "geneInfo" in arguments:
@@ -149,14 +150,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                            "what": f"{"<p></p>".join(what)}"})
             else:
                 content_html = Path('error.html').read_text()
-        if "json" in arguments and arguments["json"] == 1:
-            contents = content_json
-            print(contents)
-            type = 'html/json'
-        elif "json" not in arguments or arguments["json"] == 0 :
+        if "json" in arguments and arguments["json"][0] == "1":
+            contents = json.dumps(content_json)
+        else:
             contents = content_html
-            type = 'text/html'
-
 
 
 
