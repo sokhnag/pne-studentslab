@@ -158,11 +158,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 what = []
                 for a in data:
                     try:
-                        what.append(f"Gene: {a["id"]}({a["external_name"]})")
+                        what.append(f"{a["id"]}({a["external_name"]})")
                     except KeyError:
                         what.append(f"Gene: {a["id"]}()")
                 content_html = read_html_file("look.html").render(context={"gene": f"Chromosome: {arguments["chromo"][0]}, start: {arguments["start"][0]}, end: {arguments["end"][0]}",
-                           "what": f"{"<p></p>".join(what)}"})
+                           "what": f"Gene(s): {"<p></p>".join(what)}"})
                 content_json["Chromosome"] = arguments["chromo"][0]
                 content_json["Start"] = arguments["start"][0]
                 content_json["End"] = arguments["end"][0]

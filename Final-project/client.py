@@ -1,9 +1,21 @@
 import http.client
 import json
 import termcolor
-
+from Seqclass import Seq
 PORT = 8080
 SERVER = 'localhost'
+
+def lst(title, data):
+    termcolor.cprint(f"{title}:", "blue")
+    for b in data:
+        print(b)
+def dct(title, data):
+    termcolor.cprint(f"{title}:", "blue")
+    for b in data:
+        if type(data[b]) == list:
+            lst(b, data[b])
+        else:
+            print(f"{b}: {data[b]}")
 
 print(f"\nConnecting to server: {SERVER}:{PORT}\n")
 
@@ -31,6 +43,17 @@ for url in urls:
     data1 = response.read().decode("utf-8")
 
     info = json.loads(data1)
-
-    termcolor.cprint(url.split("?")[0][1:].capitalize(), "yellow")
-    print(f"CONTENT: {info}")
+    exercise = url.split("?")[0][1:].capitalize()
+    termcolor.cprint(f"\n{exercise}", "yellow")
+    termcolor.cprint("CONTENT:", "magenta")
+    for a in info:
+        if type(info[a]) == list:
+            lst(a, info[a])
+            for c in info[a]:
+                if type(c) == list:
+                    lst(c, info[a][c])
+        elif type(info[a]) == dict:
+            dct(a, info[a])
+        else:
+            termcolor.cprint(a, "blue", end="")
+            print(f": {info[a]}")
