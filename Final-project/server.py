@@ -39,7 +39,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         path = url_path.path
         arguments = parse_qs(url_path.query)
         content_json = {}
-        state = "ok"
+        error_code = 200
         if "json" in arguments and arguments["json"][0] == "1":
             type = "application/json"
         else:
@@ -172,13 +172,14 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 else:
                     content_html = Path('error.html').read_text()
                     type = "text/html"
-                    state = "Error"
+                    error_code = 404
             except KeyError:
-                state = "Error"
+                error_code = 404
                 content_html = Path('error.html').read_text()
                 type = "text/html"
 
-        if "json" in arguments and arguments["json"][0] == "1" and state != "Error":
+
+        if "json" in arguments and arguments["json"][0] == "1" and error_code != 404:
             contents = json.dumps(content_json)
         else:
             contents = content_html
@@ -186,7 +187,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
 
         # Generating the response message
-        self.send_response(200)  # -- Status line: OK!
+        self.send_response(error_code)  # -- Status line: OK!
 
         # Define the content-type header:
         self.send_header('Content-Type', type)

@@ -39,12 +39,12 @@ for url in urls:
         exit()
 
     response = conn.getresponse()
-
+    print(f"\nResponse received!: {response.status} {response.reason}")
     data1 = response.read().decode("utf-8")
 
     info = json.loads(data1)
     exercise = url.split("?")[0][1:].capitalize()
-    termcolor.cprint(f"\n{exercise}", "yellow")
+    termcolor.cprint(f"{exercise}", "yellow")
     termcolor.cprint("CONTENT:", "magenta")
     for a in info:
         if type(info[a]) == list:
