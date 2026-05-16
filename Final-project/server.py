@@ -10,7 +10,7 @@ from Seqclass import Seq
 
 
 PORT = 8080
-IP = "212.128.255.74"
+IP = "120.0.0.1"
 socketserver.TCPServer.allow_reuse_address = True
 SERVER = "rest.ensembl.org"
 PARAM = "content-type=application/json"
@@ -40,10 +40,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         arguments = parse_qs(url_path.query)
         content_json = {}
         error_code = 200
-        if "json" in arguments and arguments["json"][0] == "1":
-            type = "application/json"
-        else:
-            type = "text/html"
+        type = "text/html"
 
         if path == "/" and arguments == {} :
             content_html = Path('main.html').read_text()
@@ -75,7 +72,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 elif path == "/karyotype" or "karyotype" in arguments:
                     ENDPOINT = "/info/assembly/" + arguments["species"][0].replace(" ", "%20") + "?"
                     data = dat(ENDPOINT)
-                    content_html = read_html_file("ka.html").render(
+                    content_html = read_html_file("karyotype.html").render(
                         context={"todisplay": "<p></p>".join(data["karyotype"]), "number": f"Species: {arguments["species"][0]}"})
                     content_json["Species"] = arguments["species"][0]
                     content_json["Karyotype"] = data["karyotype"]
@@ -87,7 +84,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         if a["name"] == arguments["chromo"][0]:
                             if a["coord_system"] == "chromosome":
                                 l = a["length"]
-                    content_html = read_html_file("le.html").render(
+                    content_html = read_html_file("chromosome_length.html").render(
                         context={"todisplay": l,
                                  "s": f"Species: {arguments["species"][0]}", "chro": arguments["chromo"][0]})
 
@@ -97,8 +94,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 elif path == "/geneLookup" or "geneLookup" in arguments:
                     ENDPOINT = "/xrefs/symbol/homo_sapiens/" + arguments["gene"][0] + "?"
                     data = dat(ENDPOINT)
-                    content_html = read_html_file("look.html").render(
-                        context={"gene": "Gene: " + arguments["gene"][0],
+                    content_html = read_html_file("gene.html").render(
+                        context={"title": "Gene lookup", "gene": "Gene: " + arguments["gene"][0],
                                  "what": f"Stable identifier: {data[0]["id"]}"})
                     content_json["Gene"] = arguments["gene"][0]
                     content_json["Stable identifier"] = data[0]["id"]
@@ -108,8 +105,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     ENDPOINT2 = "/sequence/id/" + data[0]["id"] + "?"
                     data2 = dat(ENDPOINT2)
                     s = Seq(data2["seq"])
-                    content_html = read_html_file("look.html").render(
-                        context={"gene": "Gene: " + arguments["gene"][0],
+                    content_html = read_html_file("gene.html").render(
+                        context={"title": "Gene Seq", "gene": "Gene: " + arguments["gene"][0],
                                  "what": f"Sequence: <p></p><textarea rows='8' cols='70'>{s}</textarea>" })
                     content_json["Gene"] = arguments["gene"][0]
                     content_json["sequence"] = str(s)
@@ -127,8 +124,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                             end = int(data2["end"])
                             length = end - start + 1
                             c = data2["seq_region_name"]
-                    content_html = read_html_file("look.html").render(
-                            context={"gene": "Gene: " + arguments["gene"][0],
+                    content_html = read_html_file("gene.html").render(
+                            context={"title": "Gene Info",
+                                "gene": "Gene: " + arguments["gene"][0],
                                 "what": f"Info <p></p>Start: {start}<p></p>End: {end}<p></p>Length: {length}<p></p>Id: {data[0]["id"]}"
                                 f"<p></p>Name of the chromosome: {c}"})
                     content_json["Gene"] = arguments["gene"][0]
@@ -150,7 +148,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                             bases.append(f"{base}: {n} ({str(round(n / s.len() * 100, 2))}%)")
                         else:
                             bases.append(f"{a} (0%)")
-                    content_html = read_html_file("look.html").render(context={"gene": "Gene: " + arguments["gene"][0],
+                    content_html = read_html_file("gene.html").render(context={"title": "Gene calculations",
+                            "gene": "Gene: " + arguments["gene"][0],
                             "what": f"Calculations <p></p>Length: {s.len()}<p></p> {"<p></p>".join(bases)}"})
                     content_json["Gene"] = arguments["gene"][0]
                     content_json["Calculations"] = {"Length": s.len(), "Bases": bases}
@@ -163,8 +162,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                             what.append(f"{a["id"]}({a["external_name"]})")
                         except KeyError:
                             what.append(f"{a["id"]}()")
-                    content_html = read_html_file("look.html").render(context={"gene": f"Chromosome: {arguments["chromo"][0]}, start: {arguments["start"][0]}, end: {arguments["end"][0]}",
-                               "what": f"Gene(s): {"<p></p>".join(what)}"})
+                    content_html = read_html_file("gene.html").render(context={"title": "Gene List",
+                            "gene": f"Chromosome: {arguments["chromo"][0]}, start: {arguments["start"][0]}, end: {arguments["end"][0]}",
+                            "what": f"Gene(s): {"<p></p>".join(what)}"})
                     content_json["Chromosome"] = arguments["chromo"][0]
                     content_json["Start"] = arguments["start"][0]
                     content_json["End"] = arguments["end"][0]
@@ -181,28 +181,23 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
         if "json" in arguments and arguments["json"][0] == "1" and error_code != 404:
             contents = json.dumps(content_json)
+            type = "application/json"
         else:
             contents = content_html
 
+        self.send_response(error_code)
 
-
-        # Generating the response message
-        self.send_response(error_code)  # -- Status line: OK!
-
-        # Define the content-type header:
         self.send_header('Content-Type', type)
         self.send_header('Content-Length', str(len(str.encode(contents))))
 
-        # The header is finished
         self.end_headers()
 
-        # Send the response message
         self.wfile.write(str.encode(contents))
 
         return
 
 
-# - Server MAIN program
+# MAIN program
 
 Handler = TestHandler
 

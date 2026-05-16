@@ -31,6 +31,7 @@ urls = ["/listSpecies?limit=10",
 "/geneCalc?gene=FRAT1",
 "/geneList?chromo=9&start=22125500&end=22136000"]
 
+n = 1
 for url in urls:
     try:
         conn.request("GET", url + "&json=1")
@@ -44,6 +45,7 @@ for url in urls:
 
     info = json.loads(data1)
     exercise = url.split("?")[0][1:].capitalize()
+    termcolor.cprint(f"{n})", "green")
     termcolor.cprint(f"{exercise}", "yellow")
     termcolor.cprint("CONTENT:", "magenta")
     for a in info:
@@ -57,3 +59,4 @@ for url in urls:
         else:
             termcolor.cprint(a, "blue", end="")
             print(f": {info[a]}")
+    n += 1
